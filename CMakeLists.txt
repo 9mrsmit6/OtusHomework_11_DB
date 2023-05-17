@@ -10,6 +10,7 @@ add_executable(OtusHomework_11_DB
     main.cpp
     sqlite/sqlite3.c
     sqlite/sqlite3.h
+    QueryHandler/QueryHandler.hpp
 )
 
 
