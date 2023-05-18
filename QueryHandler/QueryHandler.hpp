@@ -8,25 +8,33 @@
 #include <memory>
 #include <utility>
 
+//В этом модуле обертка над sqlite в обьеме необходимом для решения задач самостоятельной работы
+
+//Имена таблиц
 enum class TableName
 {
     A=0,
-    B
+    B,
+    ER
 };
 
-struct LinePrinter
+
+//Конвертер строки в имя таблицы
+TableName getTableNameByString(const std::string& sv)
 {
-    void executeResponse(std::string&& mes)
-    {
-        std::cout<<mes<<std::endl;
-    }
-};
+    if(sv=="A"){return TableName::A;}
+    if(sv=="B"){return TableName::B;}
+    return TableName::ER;
+}
 
+
+//Формировалка запросов к СУБД
 struct QueryHandler
 {
-    QueryHandler()=default;
+    QueryHandler()  =   default;
     ~QueryHandler() =   default;
 
+   //Открываем БД
     bool openDB(const char* dbFileName)
     {
         if (sqlite3_open(dbFileName, &handle))
@@ -37,11 +45,14 @@ struct QueryHandler
         return true;
     }
 
+    //Закрываем БД
     void close()
     {
         sqlite3_close(handle);
     }
 
+    //Требуемые в задании запросы
+    //Они возвращают строку с результатом который я отдаю по сети назад
     std::string trancateTable(TableName table)
     {
         int r{0};
@@ -68,7 +79,7 @@ struct QueryHandler
         return "OK";
     }
 
-    std::string insert(TableName table, unsigned int id, std::string load)
+    std::string insert(TableName table, unsigned int id, std::string& load)
     {
         std::stringstream ss;
         ss<<"INSERT INTO";
@@ -81,7 +92,6 @@ struct QueryHandler
         }
 
         ss<<"(\"Data\", \"Key\") VALUES('"<<load<<"', "<<id<<");";
-        std::cout<<ss.str()<<std::endl;
 
         auto print_results = [](void *, int columns, char **data, char **names) -> int{  return 0;  };
         char *errmsg;
